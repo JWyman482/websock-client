@@ -12,10 +12,23 @@ rws.timeout = 1000;
 rws.addEventListener('open', () => {
     console.log('[Client] Connection to WebSocket server was opened.');
     rws.send('Hello, this is a message from a client.');
+    rws.send(JSON.stringify({
+        method: 'set-background-color',
+        params: {
+            color: 'blue'
+        }
+    }));
 });
 
 rws.addEventListener('message', (e) => {
     console.log('[Client] Message received: ' + e.data);
+
+    try {
+        let m = JSON.parse(e.data);
+        handleMessage(m);
+    } catch(err) {
+        console.log('[Client] Message is not parseable')
+    }
 });
 
 rws.addEventListener('close', () => {
@@ -28,3 +41,30 @@ rws.onerror = (err) => {
     }
 }
 // handlers
+
+let handlers = {
+    "set-background-color": function(m) {
+        // ...
+        console.log('[Client] set-background-color');
+        console.log('[Client] Color is ' + m.params.color);
+    }
+};
+
+function handleMessage(e) {
+
+    if (e.method == undefined) {
+        return;
+    }
+
+    let method = e.method;
+
+    if (method) {
+        if (handlers[method]) {
+            let handler = handlers[method];
+            handler(e);
+        } else {
+            console.log("[CLIENT] Don't have a handler for that:" + method);
+        }
+    }
+
+}
