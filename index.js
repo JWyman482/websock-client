@@ -4,7 +4,8 @@ const Html5WebSocket = require('html5-websocket');
 const ReconnectingWebSocket = require('reconnecting-websocket');
 
 // websocket initialization
-let ws_host = '192.168.1.33';
+// let ws_host = '192.168.1.33';
+let ws_host = 'localhost';
 let ws_port = '3000';
 let nm = 'John'
 const options = { WebSocket: Html5WebSocket };
@@ -32,19 +33,27 @@ const readline = require('readline').createInterface({
 rws.addEventListener('open', () => {
     console.log('[Client] Connection to WebSocket server was opened.');
     // rws.send('Hello, this is a message from a client.');
-    sendMessage("test");
+    sendMessage("test", "handshake");
     waitForUserInput();
 });
 
-function sendMessage(msg) {
-    let splitMsg = msg.split
-    if (msg == "background") {
+function sendMessage(msg, type) {
+    if (type == "background") {
         rws.send(JSON.stringify({
             method: 'set-background-color',
             params: {
-                color: 'blue'
+                color: msg
             }
-        }));f
+        }));
+    }
+    else if (type == "handshake") {
+        rws.send(JSON.stringify({
+            method: 'handshake',
+            params: {
+                name: nm,
+                msg
+            }
+        }));
     }
     else {
         rws.send(JSON.stringify({
